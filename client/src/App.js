@@ -5,6 +5,7 @@ import facemesh from './img/face_mesh.jpg'
 import pose_estimation from './img/pose_estimation.png';
 import facedetection from './img/face_detection.jpg'
 import eyedetection from './img/eye_detection.jpg';
+import axios from 'axios';
 function App() {
   const videoRef = useRef(null);
   const [isFaceDetected,setIsFaceDetected] = useState(true);
@@ -12,6 +13,7 @@ function App() {
   const [isPosed,setIsPosed] = useState(true);
   const [isObjectDetected,setIsObjectDetected] = useState(true);
   const [isEyeDetected,setIsEyeDetected] = useState(true);
+  const [data,setData] = useState([{}]);
   const getVideo = () => {
     navigator.mediaDevices.getUserMedia({
       video:{
@@ -48,7 +50,15 @@ function App() {
     isPosed ? setIsPosed(true): setIsPosed(false);
     console.log("isPosed",isPosed);
   }
-  useEffect(()=> {
+  useEffect(()=> { 
+    fetch('/detect').then(
+      res => res.json()
+    ).then(
+      data => {
+        setData(data);
+        console.log(data)
+      }
+    )
     getVideo();
   },[videoRef])
   return (
