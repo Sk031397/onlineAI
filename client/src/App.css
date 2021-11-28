@@ -45,3 +45,8 @@ img {
   height:20px !important;
   width:20px !important;
 }
+.sidebar_container {
+  display: flex;
+  flex-direction: column !important;
+  justify-content: flex-end;
+}
