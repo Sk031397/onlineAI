@@ -1,107 +1,110 @@
-import './App.css';
-import React, { useRef, useState, useEffect } from 'react';
-import objectdetection from './img/object_detection_image.jpg';
-import facemesh from './img/face_mesh.jpg'
-import pose_estimation from './img/pose_estimation.png';
-import facedetection from './img/face_detection.jpg'
-import eyedetection from './img/eye_detection.jpg';
 import axios from 'axios';
+import React, { useRef, useState, useEffect } from "react";
+import * as tf from "@tensorflow/tfjs";
+import * as cocossd from "@tensorflow-models/coco-ssd";
+import Webcam from "react-webcam";
+import "./App.css";
+import { drawRect } from "./utilities";
 function App() {
-  const videoRef = useRef(null);
-  const [isFaceDetected,setIsFaceDetected] = useState(true);
-  const [isFaceMeshed,setIsFaceMeshed] = useState(true);
-  const [isPosed,setIsPosed] = useState(true);
-  const [isObjectDetected,setIsObjectDetected] = useState(true);
-  const [isEyeDetected,setIsEyeDetected] = useState(true);
-  const [data,setData] = useState([{}]);
-  const getVideo = () => {
-    navigator.mediaDevices.getUserMedia({
-      video:{
-        width:750,
-        height:350
+  const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [width,setWidth] = useState();
+  const [height,setHeight] = useState();
+  const [name,setName] = useState();
+  const [accuracy,setAccuracy] = useState();
+
+  const runCoco = async () => {
+    const net = await cocossd.load();
+    setInterval(() => {
+      detect(net);
+    }, 10);
+  };
+  const detect = async (net) => {
+    // Check data is available
+    if (
+      typeof webcamRef.current !== "undefined" &&
+      webcamRef.current !== null &&
+      webcamRef.current.video.readyState === 4
+    ) {
+      // Get Video Properties
+      const video = webcamRef.current.video;
+      const videoWidth = webcamRef.current.video.videoWidth;
+      const videoHeight = webcamRef.current.video.videoHeight;
+
+      // Set video width
+      webcamRef.current.video.width = videoWidth;
+      webcamRef.current.video.height = videoHeight;
+
+      // Set canvas height and width
+      canvasRef.current.width = videoWidth;
+      canvasRef.current.height = videoHeight;
+
+      // Make Detections
+      const obj = await net.detect(video);
+      if(obj === undefined)
+      {
+       //s console.log('no')
       }
-    })
-    .then(stream => {
-      let video = videoRef.current;
-      video.srcObject = stream;
-      video.play();
-    })
-    .catch(err => {
-      console.error(err);
-    })
-  }
-  const OnFaceDetected = () => {
-    isFaceDetected ? setIsFaceDetected(true) : setIsFaceDetected(false);
-    console.log("isFaceDetected: ", isFaceDetected);
-  }
-  const OnFaceMeshed = () => {
-    isFaceMeshed ? setIsFaceMeshed(true) : setIsFaceMeshed(false);
-    console.log("isFaceMeshed: ", isFaceMeshed);
-  }
-  const OnEyeDetected = () => {
-    isEyeDetected ? setIsEyeDetected(true) : setIsEyeDetected(false);
-    console.log("isEyeDetected: ", isEyeDetected);
-  }
-  const OnObjectDetected = () => {
-    isObjectDetected ? setIsObjectDetected(true) : setIsObjectDetected(false);
-    console.log("isObjectDetected",isObjectDetected);
-  }
-  const OnPosed = () => {
-    isPosed ? setIsPosed(true): setIsPosed(false);
-    console.log("isPosed",isPosed);
-  }
+      try{
+        setWidth(obj[0].bbox[2]);
+        setHeight(obj[0].bbox[3]);
+        setName(obj[0]['class']);
+        setAccuracy(obj[0]['score']);
+        console.log(obj);
+        if(obj[0].bbox[2] >= 850 || obj[0].bbox[3] >= 450)
+        {
+          console.log('out of bounds')
+        } 
+      }catch(e){
+      }
+      // Draw mesh
+      const ctx = canvasRef.current.getContext("2d");
+      drawRect(obj, ctx);
+    }
+  };
   useEffect(()=> { 
-    fetch('/detect').then(
-      res => res.json()
-    ).then(
-      data => {
-        setData(data);
-        console.log(data)
-      }
-    )
-    getVideo();
-  },[videoRef])
+    runCoco();
+  },[])
   return (
     <div className="App">
       <div className="main_container">
         <h1>Attention Grabber & Keeper</h1>
           <div className="video_container">
-            <video ref={videoRef}></video>
-              <div className="main_buttons">
-              {
-                isObjectDetected &&
-                <button onClick={() => OnObjectDetected()}>
-                  <img src={objectdetection}/>
-                </button> 
-              }
-              {
-                isFaceMeshed &&
-                <button onClick={() => OnFaceDetected()}>
-                  <img src={facedetection}/>
-                </button>
-              }
-              {
-                isFaceDetected &&
-                <button onClick={() => OnFaceDetected()}>
-                  <img src={facemesh}/>
-                </button>
-              }
-              {
-                isPosed && 
-                <button onClick={() => OnPosed()}>
-                  <img src={pose_estimation}/>
-                </button>
-              }
-              {
-                isEyeDetected &&
-                <button onClick={()=> OnEyeDetected()}>
-                  <img src={eyedetection} />
-               </button>
-              }
+          <Webcam
+          ref={webcamRef}
+          muted={true} 
+          style={{
+           borderRadius:25,
+           height:450
+          }}
+        />
+        <div className="sidebar_container">
+          <div className="accuracy_field">
+            <h2>Accuracy:</h2>
+            <h3>{accuracy}</h3>
+          </div>
+          <div className="class_field">
+            <h2>Type of Object:</h2>
+            <h3>{name}</h3>
+          </div>
+        </div>
+        
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+           
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            zindex: 8,
+            width: 440,
+            height: 480,
+          }}
+        />
         </div>
       </div>
     </div>
-  </div>
   );
 }
 
