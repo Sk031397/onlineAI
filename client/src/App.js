@@ -5,6 +5,7 @@ import * as cocossd from "@tensorflow-models/coco-ssd";
 import Webcam from "react-webcam";
 import "./App.css";
 import { drawRect } from "./utilities";
+
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -12,7 +13,6 @@ function App() {
   const [height,setHeight] = useState();
   const [name,setName] = useState();
   const [accuracy,setAccuracy] = useState();
-
   const runCoco = async () => {
     const net = await cocossd.load();
     setInterval(() => {
@@ -50,6 +50,14 @@ function App() {
         setHeight(obj[0].bbox[3]);
         setName(obj[0]['class']);
         setAccuracy(obj[0]['score']);
+        const y = tf.tensor2d(obj[0].bbox[0],obj[0].bbox[1]);
+        const z = tf.tensor2d(obj[0].bbox[2],obj[0].bbox[3]);
+        const pre = tf.metrics.precision(y,z);
+        const recall = tf.metrics.recall(y,z);
+        const f1_score = 2*((pre*recall)/(pre+recall));
+        console.log("precision",pre);
+        console.log("recall",recall);
+        console.log("f1_score",f1_score);
         console.log(obj);
         if(obj[0].bbox[2] >= 850 || obj[0].bbox[3] >= 450)
         {
