@@ -13,7 +13,7 @@ function App() {
   const [height,setHeight] = useState();
   const [name,setName] = useState();
   const [accuracy,setAccuracy] = useState();
-  const runCoco = async () => {
+   const runCoco = async () => {
     const net = await cocossd.load();
     setInterval(() => {
       detect(net);
@@ -50,15 +50,23 @@ function App() {
         setHeight(obj[0].bbox[3]);
         setName(obj[0]['class']);
         setAccuracy(obj[0]['score']);
-        const y = tf.tensor2d(obj[0].bbox[0],obj[0].bbox[1]);
-        const z = tf.tensor2d(obj[0].bbox[2],obj[0].bbox[3]);
-        const pre = tf.metrics.precision(y,z);
-        const recall = tf.metrics.recall(y,z);
-        const f1_score = 2*((pre*recall)/(pre+recall));
-        console.log("precision",pre);
-        console.log("recall",recall);
-        console.log("f1_score",f1_score);
-        console.log(obj);
+        console.log([obj[0].bbox[2], obj[0].bbox[3]].map(normalize(obj[0].bbox[2], obj[0].bbox[3])));
+        const normalization = [obj[0].bbox[2], obj[0].bbox[3]].map(normalize(obj[0].bbox[2], obj[0].bbox[3]));
+        console.log("n",normalization);
+        const y = tf.tensor2d([
+          [normalization[0],normalization[1]],
+          [normalization[1],normalization[1]]
+        ])
+        const z = tf.tensor2d([
+          [normalization[1],normalization[0]],
+          [normalization[0],normalization[1]]
+        ])
+        const precision = tf.metrics.precision(y,z)
+        const recall = tf.metrics.recall(y,z)
+        console.log("precision: " + precision);
+        console.log(" recall: " + recall);
+        const f1_score = (2 * precision.arraySync() * recall.arraySync()) / (precision.arraySync()+recall.arraySync());
+        console.log('f1_score: '+f1_score);
         if(obj[0].bbox[2] >= 850 || obj[0].bbox[3] >= 450)
         {
           console.log('out of bounds')
@@ -70,7 +78,14 @@ function App() {
       drawRect(obj, ctx);
     }
   };
-  useEffect(()=> { 
+  const normalize = (min,max) => {
+      var delta = max - min;
+      return function(val){
+        return (val - min) / delta;
+      }
+  }
+  useEffect(()=> {
+    axios.get('/eyedetection').then((response)=>console.log(response));
     runCoco();
   },[])
   return (

@@ -21,9 +21,9 @@ class handDetector():
                     self.mpDraw.draw_landmarks(img,handLms,self.mpHands.HAND_CONNECTIONS)
         return img
                 #for id,lm in enumerate(handLms.landmark):
-                  #  h,w,c = img.shape
-                  #  cx,cy = int(lm.x*w),int(lm.y*h)
-                  #  print(id,cx,cy)
+                #    h,w,c = img.shape
+                #    cx,cy = int(lm.x*w),int(lm.y*h)
+                #    print(id,cx,cy)
                   #  cv2.circle(img,(cx,cy),25,(255,0,255),cv2.FILLED)
 
 
@@ -36,10 +36,10 @@ def main():
         success,img = cap.read()
         #img = detector.findHands(img)
         cTime = time.time()
-        fps = 1 / (cTime - pTime)
-        pTime = cTime
-        cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
-       # cv2.imshow("image",img)
+     #   fps = 1 / (cTime - pTime)
+     #   pTime = cTime
+     #   cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+        cv2.imshow("image",img)
         #if cv2.waitKey(1) == ord('q'):
          #   break
     #cap.release()
