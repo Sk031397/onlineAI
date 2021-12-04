@@ -20,9 +20,10 @@ while True:
             cx, cy = int(lm.x * w), int(lm.y * h)
             cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)
             with open('PoseModuleCoords.csv','w',newline='') as f:
-                thewriter = csv.writer(f)
-                thewriter.writerow(["x coords","Y coords"])
-                thewriter.writerow([cx,cy])
+                for i in range(0,100):
+                    thewriter = csv.writer(f)
+                    thewriter.writerow(["x coords","Y coords"])
+                    thewriter.writerow([cx,cy])
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime

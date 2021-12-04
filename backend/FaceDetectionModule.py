@@ -3,6 +3,8 @@ import mediapipe as mp
 import time
 import csv
 class FaceDetector():
+
+    lmList = []
     def __init__(self, minDetectionCon=0.5):
 
         self.minDetectionCon = minDetectionCon
@@ -31,9 +33,10 @@ class FaceDetector():
                             (bbox[0], bbox[1] - 20), cv2.FONT_HERSHEY_PLAIN,
                             2, (255, 0, 255), 2)
                     with open("FaceDetectionCoords.csv",'w',newline='') as f:
-                        thewriter = csv.writer(f)
-                        thewriter.writerow(["Detection Score","Bbox X","Bbox Y","Bbox X max","Bbox Y max"])
-                        thewriter.writerow([detection.score[0],bboxC.xmin,bboxC.ymin,bboxC.width,bboxC.height])
+                        for i in range(0,100):
+                            thewriter = csv.writer(f)
+                            thewriter.writerow(["Detection Score","Bbox X","Bbox Y","Bbox X max","Bbox Y max"])
+                            thewriter.writerow([detection.score[0],bboxC.xmin,bboxC.ymin,bboxC.width,bboxC.height])
         return img, bboxs
 
     def fancyDraw(self, img, bbox, l=30, t=5, rt= 1):
