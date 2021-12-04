@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 import time
- 
+import csv 
 cap = cv2.VideoCapture(0)
 pTime = 0
  
@@ -22,7 +22,10 @@ while True:
             ih, iw, ic = img.shape
             x,y = int(lm.x*iw), int(lm.y*ih)
             print(id,x,y)
- 
+            with open('FaceMeshCoords.csv','w',newline='') as f:
+                thewriter = csv.writer(f)
+                thewriter.writerow(["x coords","Y coords"])
+                thewriter.writerow([x,y])
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime

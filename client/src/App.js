@@ -86,6 +86,10 @@ function App() {
   }
   useEffect(()=> {
     axios.get('/eyedetection').then((response)=>console.log(response));
+	  axios.get('/facemeshdetection').then((response)=>console.log(response));
+axios.get('/facemesh').then((response)=>console.log(response));
+axios.get('/facedetection').then((response)=>console.log(response));
+axios.get('/poseestimation').then((response)=>console.log(response));
     runCoco();
   },[])
   return (

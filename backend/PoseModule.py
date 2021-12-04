@@ -1,6 +1,9 @@
 import cv2
 import mediapipe as mp
 import time
+import csv
+
+cap = cv2.VideoCapture(0)
 mpDraw = mp.solutions.drawing_utils
 mpPose = mp.solutions.pose
 pose = mpPose.Pose()
@@ -16,6 +19,10 @@ while True:
             print(id, lm)
             cx, cy = int(lm.x * w), int(lm.y * h)
             cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)
+            with open('PoseModuleCoords.csv','w',newline='') as f:
+                thewriter = csv.writer(f)
+                thewriter.writerow(["x coords","Y coords"])
+                thewriter.writerow([cx,cy])
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime

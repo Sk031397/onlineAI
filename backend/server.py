@@ -33,9 +33,9 @@ def detect():
             break
     cap.release()
     cv2.destroyAllWindows()
-    return ex,ey,lmList
-@app.route('/facemeshdetection')
-def detect():
+    return ex,ey
+@app.route('/facemesh')
+def detect1():
     cap = cv2.VideoCapture(0)
     pTime = 0
     lmList = []
@@ -66,7 +66,7 @@ def detect():
         return x,y,lmList
 
 @app.route('/facedetection')
-def detect():
+def detect2():
     cap = cv2.VideoCapture(0)
     face = FaceDetector()
     while True:
@@ -79,7 +79,7 @@ def detect():
         cap.destroyAllWindows()
         return img
 @app.route('/poseestimation')
-def detect():
+def detect3():
     cap = cv2.VideoCapture(0)
     mpDraw = mp.solutions.drawing_utils
     mpPose = mp.solutions.pose

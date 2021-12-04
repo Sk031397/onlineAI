@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -26,6 +27,10 @@ while True:
         for (ex, ey, ew, eh) in eyes:
             cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
             print("Eyes: X: %2d, Y: %2d" % (ex,ey))
+            with open('EyeDetectionCoords.csv','w',newline='') as f:
+                thewriter = csv.writer(f)
+                thewriter.writerow(["x coords eyes","Y coords eyes","X coords face","Y coords face"])
+                thewriter.writerow([ex,ey,x,y])
            # X_train,X_test,y_train,y_test = train_test_split(ex,ey,test_size=0.5,random_state=np.random.RandomState(0))
           #  classifier = make_pipeline(StandardScaler(),LinearSVC(random_state=np.random.RandomState(0)))
           #  classifier.fit(X_train,y_train)
