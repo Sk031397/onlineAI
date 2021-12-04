@@ -5,7 +5,7 @@ import * as cocossd from "@tensorflow-models/coco-ssd";
 import Webcam from "react-webcam";
 import "./App.css";
 import { drawRect } from "./utilities";
-
+import {CSVLINK} from 'react-csv';
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -13,12 +13,20 @@ function App() {
   const [height,setHeight] = useState();
   const [name,setName] = useState();
   const [accuracy,setAccuracy] = useState();
+  const headers = [
+    { label: "X", key: "x" },
+    { label: "Y", key: "y" },
+    { label: "Width", key: "width" },
+    { label: "Height", key: "height" }
+  ];
+   const data = [];
    const runCoco = async () => {
     const net = await cocossd.load();
     setInterval(() => {
       detect(net);
     }, 10);
   };
+  
   const detect = async (net) => {
     // Check data is available
     if (
@@ -67,6 +75,7 @@ function App() {
         console.log(" recall: " + recall);
         const f1_score = (2 * precision.arraySync() * recall.arraySync()) / (precision.arraySync()+recall.arraySync());
         console.log('f1_score: '+f1_score);
+        data.append([obj[0].bbox[0], obj[0].bbox[1], obj[0].bbox[2], obj[0].bbox[3]]);
         if(obj[0].bbox[2] >= 850 || obj[0].bbox[3] >= 450)
         {
           console.log('out of bounds')
@@ -77,6 +86,11 @@ function App() {
       const ctx = canvasRef.current.getContext("2d");
       drawRect(obj, ctx);
     }
+  };
+  const csvReport = {
+    data: data,
+    headers: headers,
+    filename: 'ObjectDetection.csv'
   };
   const normalize = (min,max) => {
       var delta = max - min;
@@ -129,6 +143,7 @@ axios.get('/poseestimation').then((response)=>console.log(response));
             height: 480,
           }}
         />
+        <csvlink {...csvreport}>Export to CSV</csvlink>
         </div>
       </div>
     </div>
