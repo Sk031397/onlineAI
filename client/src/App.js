@@ -13,13 +13,7 @@ function App() {
   const [height,setHeight] = useState();
   const [name,setName] = useState();
   const [accuracy,setAccuracy] = useState();
-  const headers = [
-    { label: "X", key: "x" },
-    { label: "Y", key: "y" },
-    { label: "Width", key: "width" },
-    { label: "Height", key: "height" }
-  ];
-   const data = [];
+  
    const runCoco = async () => {
     const net = await cocossd.load();
     setInterval(() => {
@@ -87,11 +81,6 @@ function App() {
       drawRect(obj, ctx);
     }
   };
-  const csvReport = {
-    data: data,
-    headers: headers,
-    filename: 'ObjectDetection.csv'
-  };
   const normalize = (min,max) => {
       var delta = max - min;
       return function(val){
@@ -143,7 +132,7 @@ axios.get('/poseestimation').then((response)=>console.log(response));
             height: 480,
           }}
         />
-        <csvlink {...csvreport}>Export to CSV</csvlink>
+        
         </div>
       </div>
     </div>
